@@ -1,7 +1,7 @@
 # Texas-Holdem
 Here is a simulation I made for Texas Holdem. This will display the freequency of winning a game of Texas Holdem with a certain hand ranking (from 1 being Pair to 9 being a Straight Flush). In due time, I will update to be able to simulate more, such as see which hole cards have the highest winning percent.
 
-# Current Results (With a game of only 4 players)
+# Current Results (4 Player Game)
 
 - High Card: 0.63796%
 
