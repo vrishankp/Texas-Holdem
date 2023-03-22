@@ -20,3 +20,6 @@ Here is a simulation I made for Texas Holdem. This will display the freequency o
 - Quad: 0.6%
 
 - Straight Flush: 0.05375%
+
+# New Update: Probability of Winning
+Upon running the program, if you type 2, you can now type the community cards and your hand to caluclate how likely you are to win by counting how many hands your hand beats. This also generates an output.csv file that is the list of all the hands that could beat you at this current time.
