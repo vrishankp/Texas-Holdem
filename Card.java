@@ -68,4 +68,11 @@ public class Card implements Comparable<Card>{
             return false;
         }
     }
+
+    public boolean superEqual(Card o){
+        if (this.rank == o.rank && this.suit == o.suit){
+            return true;
+        }
+        return false;
+    }
 }
