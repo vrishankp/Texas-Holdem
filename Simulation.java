@@ -86,7 +86,15 @@ public class Simulation {
                 Game game = new Game(2);
                 game.players = players;
                 game.comCards = comCards;
-                Card[] winningHand = game.winner(game.players, game.comCards)[0];
+                Card[][] result = game.winner(game.players, game.comCards);
+                Card[] winningHand;
+                if (result.length > 1){
+                    handsWorse++;
+                    continue;
+                } else {
+                    winningHand = result[0];
+                }
+
                 if (compareCardArray(winningHand, otherHand, comCards)){
                     handsBetter++;
                     cardsThatBeat1.add(otherHand[0]);
