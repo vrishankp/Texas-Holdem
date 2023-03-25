@@ -74,6 +74,7 @@ public class Simulation {
         }
         int handsBetter = 0;
         int handsWorse = 0;
+        int handsEqual = 0;
         int count = 0;
         ArrayList<Card> cardsThatBeat1 = new ArrayList<>();
         ArrayList<Card> cardsThatBeat2 = new ArrayList<>();
@@ -89,7 +90,7 @@ public class Simulation {
                 Card[][] result = game.winner(game.players, game.comCards);
                 Card[] winningHand;
                 if (result.length > 1){
-                    handsWorse++;
+                    handsEqual++;
                     continue;
                 } else {
                     winningHand = result[0];
@@ -109,6 +110,7 @@ public class Simulation {
         double winningChance = (float) handsWorse / (float) count;
         double winningPercent = Math.round(winningChance * 100.0 * 100.0) / 100.0;
         System.out.println("You have a " + winningPercent + "% of winning!");
+        System.out.println("There are " + handsEqual + " hands that will tie with you");
         writeToCSV(cardsThatBeat1, cardsThatBeat2, reason);
     }
 
