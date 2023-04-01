@@ -7,11 +7,6 @@ public class Simulation {
     int numIter;
     int[] result;
 
-    public Simulation(int numIter){
-
-
-    }
-
     public void standardSimulation(int numIter){
         this.result = new int[10];
         this.numIter = numIter;
@@ -49,10 +44,27 @@ public class Simulation {
         System.out.print("Enter Number of Simulations: ");
         Scanner scan = new Scanner(System.in);
         int num = scan.nextInt();
-        Simulation sim = new Simulation(num);
+        Simulation sim = new Simulation();
         sim.standardSimulation(num);
     }
-
+    public static Card getCard(Scanner scan){
+        String next = scan.next();
+        int rank;
+        if (next.charAt(0) == 'A'){
+            rank = 1;
+        } else if (next.charAt(0) == 'K'){
+            rank = 13;
+        } else if (next.charAt(0) == 'Q'){
+            rank = 12;
+        } else if (next.charAt(0) == 'J'){
+            rank = 11;
+        } else {
+            rank = Integer.parseInt(next);
+        }
+        char suit = scan.next().toUpperCase().charAt(0);
+        Card newCard = new Card(rank, suit);
+        return newCard;
+    }
     public static void chance(Scanner scan1){
         Scanner scan = scan1;
         Card[] comCards = new Card[5];
@@ -61,20 +73,16 @@ public class Simulation {
         Card[] remainingCards = deck.getDeck();
 
         for (int i = 1; i < 6; i++){
-            System.out.print("Enter Community Card " + i + "(ex: 12 C, Aces are 1): ");
-            int rank = scan.nextInt();
-            char suit = scan.next().charAt(0);
-            Card newCard = new Card(rank, suit);
+            System.out.print("Enter Community Card " + i + " (ex: \"A C\"): ");
+            Card newCard = getCard(scan);
             comCards[i - 1] = newCard;
             System.out.println("Added " + newCard);
             remainingCards = remove(remainingCards, newCard);
         }
 
         for (int i = 1; i < 3; i++){
-            System.out.print("Enter your hand " + i + "(ex: 12 C, Aces are 1): ");
-            int rank = scan.nextInt();
-            char suit = scan.next().charAt(0);
-            Card newCard = new Card(rank, suit);
+            System.out.print("Enter your hand " + i + " (ex: \"A C\"): ");
+            Card newCard = getCard(scan);
             playerHand[i - 1] = newCard;
             System.out.println("Added " + newCard);
             remainingCards = remove(remainingCards, newCard);
@@ -136,10 +144,8 @@ public class Simulation {
         Card[] remainingCards = deck.getDeck();
 
         for (int i = 1; i < numComCards + 1; i++){
-            System.out.print("Enter Community Card " + i + "(ex: 12 C, Aces are 1): ");
-            int rank = scan.nextInt();
-            char suit = scan.next().charAt(0);
-            Card newCard = new Card(rank, suit);
+            System.out.print("Enter Community Card " + i + " (ex: \"A C\"): ");
+            Card newCard = getCard(scan);
             comCards[i - 1] = newCard;
             System.out.println("Added " + newCard);
             remainingCards = remove(remainingCards, newCard);
@@ -147,10 +153,8 @@ public class Simulation {
 
         for (int i = 1; i < numPlayers + 1; i++){
             for (int j = 0; j < 2; j++){
-                System.out.print("Enter player " + i + "'s Card " + j + "(ex: 12 C, Aces are 1): ");
-                int rank = scan.nextInt();
-                char suit = scan.next().charAt(0);
-                Card newCard = new Card(rank, suit);
+                System.out.print("Enter player " + i + "'s Card " + (j + 1) + " (ex: \"A C\"): ");
+                Card newCard = getCard(scan);
                 players[i - 1][j] = newCard;
                 System.out.println("Added " + newCard);
                 remainingCards = remove(remainingCards, newCard);
@@ -216,9 +220,7 @@ public class Simulation {
 
             System.out.println("\n------ Next Card ------");
             System.out.println("Next Community Card: ");
-            int rank = scan.nextInt();
-            char suit = scan.next().charAt(0);
-            Card newCard = new Card(rank, suit);
+            Card newCard = getCard(scan);
             System.out.println("Added " + newCard);
             Card[] newComCards = Game.combine(comCards, new Card[]{newCard});
             Card[] newRemainingCards = remove(remainingCards, newCard);
@@ -282,9 +284,7 @@ public class Simulation {
 
         System.out.println("\n------ Next Card ------");
         System.out.println("Next Community Card: ");
-        int rank = scan.nextInt();
-        char suit = scan.next().charAt(0);
-        Card newCard = new Card(rank, suit);
+        Card newCard = getCard(scan);
         System.out.println("Added " + newCard);
         Card[] newComCards = Game.combine(comCards, new Card[]{newCard});
 
