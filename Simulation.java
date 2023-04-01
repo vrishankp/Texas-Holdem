@@ -48,7 +48,7 @@ public class Simulation {
         sim.standardSimulation(num);
     }
     public static Card getCard(Scanner scan){
-        String next = scan.next();
+        String next = scan.next().toUpperCase();
         int rank;
         if (next.charAt(0) == 'A'){
             rank = 1;
