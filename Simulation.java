@@ -8,7 +8,12 @@ public class Simulation {
     int[] result;
 
     public Simulation(int numIter){
-        result = new int[10];
+
+
+    }
+
+    public void standardSimulation(int numIter){
+        this.result = new int[10];
         this.numIter = numIter;
         for (int i = 0; i < numIter; i++){
             this.game = new Game(6);
@@ -25,7 +30,6 @@ public class Simulation {
         for (int i = 1; i < output.length; i++){
             System.out.println(i + ": " + ((float) output[i]  * 100)/ numIter);
         }
-
     }
 
     public static void main(String args[]){
@@ -46,6 +50,7 @@ public class Simulation {
         Scanner scan = new Scanner(System.in);
         int num = scan.nextInt();
         Simulation sim = new Simulation(num);
+        sim.standardSimulation(num);
     }
 
     public static void chance(Scanner scan1){
@@ -119,11 +124,8 @@ public class Simulation {
     public static void fullGame(Scanner scan){
         System.out.print("Enter how many players are in this game: ");
         int numPlayers = scan.nextInt();
-        System.out.println();
-
         System.out.print("Enter how many cards are part of the community cards: ");
         int numComCards = scan.nextInt();
-        System.out.println();
 
         Card[] comCards = new Card[numComCards];
         Card[][] players = new Card[numPlayers][];
@@ -159,24 +161,17 @@ public class Simulation {
 
         int count = 0;
         int[] winningCount = new int[numPlayers];
-        ArrayList<Card> test1 = new ArrayList<>();
-        ArrayList<Card> test2 = new ArrayList<>();
-        ArrayList<Integer> stringTest = new ArrayList<>();
+        int[] tieCount = new int[numPlayers];
         if (comLeft == 2){
             for (int i = 0; i < remainingCards.length; i ++) {
                 for (int j = i + 1; j < remainingCards.length; j++) {
 
                     Game game = new Game(numPlayers);
                     Card[] completionCards = {remainingCards[i], remainingCards[j]};
-
-                    if (completionCards[0].rank == 9 && completionCards[1].rank == 10){
-                        System.out.print("");
-                    }
                     Card[] fullComCards = Game.combine(comCards, completionCards);
                     game.players = players;
                     game.comCards = fullComCards;
 
-                    boolean test = false;
                     Card[][] result = game.winner(game.players, game.comCards);
                     Card[] winningHand;
 
@@ -184,8 +179,7 @@ public class Simulation {
                         for (int l = 0; l < players.length; l++){
                             for (int k = 0; k < result.length; k++) {
                                 if (compareCardArray(result[k], players[l], fullComCards)) {
-                                    winningCount[l]++;
-                                    test = true;
+                                    tieCount[l]++;
                                     break;
                                 }
                             }
@@ -198,32 +192,127 @@ public class Simulation {
                     for (int l = 0; l < players.length; l++){
                         if (compareCardArray(winningHand, players[l], fullComCards)){
                             winningCount[l]++;
-                            test = true;
                             break;
                         }
                     }
-
-                    test1.add(remainingCards[i]);
-                    test2.add(remainingCards[j]);
-                    stringTest.add(1);
                 }
             }
 
             for (int element: winningCount){
                 count += element;
             }
-            System.out.println(count);
-            for (int i = 1; i < winningCount.length + 1; i++){;
-                System.out.println("Player " + i + "'s chance of winning: "  + winningCount[i-1]/ (float) count * 100.0 + "%");
+
+            for (int element: tieCount){
+                count += element;
             }
-            writeToCSV(test1, test2, stringTest);
+
+            System.out.println("\n------ Results ------");
+            for (int i = 1; i < winningCount.length + 1; i++){
+                double winningPercent = winningCount[i-1]/ (float) count * 100.0;
+                double tiePercent = tieCount[i-1]/ (float) count * 100.0;
+                double totalPercent =  winningPercent + tiePercent;
+                System.out.println("Player " + i + " has a " + round(winningPercent) + "% chance of winning and a " + round(tiePercent) + "% chance of tying, for a total of " + round(totalPercent) + "%");
+            }
+
+            System.out.println("\n------ Next Card ------");
+            System.out.println("Next Community Card: ");
+            int rank = scan.nextInt();
+            char suit = scan.next().charAt(0);
+            Card newCard = new Card(rank, suit);
+            System.out.println("Added " + newCard);
+            Card[] newComCards = Game.combine(comCards, new Card[]{newCard});
+            Card[] newRemainingCards = remove(remainingCards, newCard);
+
+            fullGame4(scan, newRemainingCards, newComCards, players);
+
         } else if (comLeft == 1){
+            fullGame4(scan, remainingCards, comCards, players);
+        } else {
 
         }
 
 
     }
 
+    public static void fullGame4(Scanner scan, Card[] remainingCards, Card[] comCards, Card[][] players){
+        int[] winningCount = new int[players.length];
+        int[] tieCount = new int[players.length];
+        for (int i = 0; i < remainingCards.length; i++){
+            Game game = new Game(players.length);
+            Card[] completionCards = {remainingCards[i]};
+            Card[] fullComCards = Game.combine(comCards, completionCards);
+            game.players = players;
+            game.comCards = fullComCards;
+
+            Card[][] result = game.winner(game.players, game.comCards);
+            Card[] winningHand;
+
+            if (result.length > 1){
+                for (int l = 0; l < players.length; l++){
+                    for (int k = 0; k < result.length; k++) {
+                        if (compareCardArray(result[k], players[l], fullComCards)) {
+                            tieCount[l]++;
+                            break;
+                        }
+                    }
+                }
+                continue;
+            } else {
+                winningHand = result[0];
+            }
+
+            for (int l = 0; l < players.length; l++){
+                if (compareCardArray(winningHand, players[l], fullComCards)){
+                    winningCount[l]++;
+                    break;
+                }
+            }
+        }
+        int count = 0;
+        for (int element: winningCount){
+            count += element;
+        }
+        System.out.println("\n------ Results ------");
+        for (int i = 1; i < winningCount.length + 1; i++){
+            double winningPercent = winningCount[i-1]/ (float) count * 100.0;
+            double tiePercent = tieCount[i-1]/ (float) count * 100.0;
+            double totalPercent = winningPercent + tiePercent;
+            System.out.println("Player " + i + " has a " + round(winningPercent) + "% chance of winning and a " + round(tiePercent) + "% chance of tying, for a total of " + round(totalPercent) + "%");
+        }
+
+        System.out.println("\n------ Next Card ------");
+        System.out.println("Next Community Card: ");
+        int rank = scan.nextInt();
+        char suit = scan.next().charAt(0);
+        Card newCard = new Card(rank, suit);
+        System.out.println("Added " + newCard);
+        Card[] newComCards = Game.combine(comCards, new Card[]{newCard});
+
+        Game game = new Game(players.length);
+        game.players = players;
+        game.comCards = newComCards;
+        Card[][] winners =  game.winner(game.players, game.comCards);
+
+        if (winners.length == 1){
+            System.out.print("The winner is: ");
+            for (int i = 0; i < players.length; i++){
+                if (compareCardArray(winners[0], players[i], newComCards)){
+                    System.out.println("Player " + (i + 1));
+                    break;
+                }
+            }
+        } else {
+            System.out.println("There is a tie between: ");
+            for (int i = 0; i < players.length; i++){
+                for (int j = 0; j < winners.length; j++){
+                    if (compareCardArray(winners[j], players[i], newComCards)){
+                        System.out.println("Player " + (i + 1));
+                        break;
+                    }
+                }
+            }
+        }
+    }
     public static Card[] remove(Card[] array, Card card){
         Card[] newArray = new Card[array.length - 1];
         int count = 0;
@@ -323,5 +412,9 @@ public class Simulation {
             }
         }
         return toReturn;
+    }
+
+    public static double round(double value) {
+        return Math.round(value * 100.00) / 100.00;
     }
 }
