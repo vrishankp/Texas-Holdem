@@ -29,13 +29,15 @@ public class Simulation {
     }
 
     public static void main(String args[]){
-        System.out.print("Press 1 for simulation, or 2 for winning chances: ");
+        System.out.print("Press 1 for simulation, 2 for winning chances, or 3 to simulate a live game: ");
         Scanner scan = new Scanner(System.in);
         int num = scan.nextInt();
         if (num == 1){
             runSimul();
-        } else {
+        } else if (num == 2) {
             chance(scan);
+        } else {
+            fullGame(scan);
         }
     }
 
@@ -112,6 +114,114 @@ public class Simulation {
         System.out.println("You have a " + winningPercent + "% of winning!");
         System.out.println("There are " + handsEqual + " hands that will tie with you");
         writeToCSV(cardsThatBeat1, cardsThatBeat2, reason);
+    }
+
+    public static void fullGame(Scanner scan){
+        System.out.print("Enter how many players are in this game: ");
+        int numPlayers = scan.nextInt();
+        System.out.println();
+
+        System.out.print("Enter how many cards are part of the community cards: ");
+        int numComCards = scan.nextInt();
+        System.out.println();
+
+        Card[] comCards = new Card[numComCards];
+        Card[][] players = new Card[numPlayers][];
+        for (int i = 0; i < players.length; i++){
+            players[i] = new Card[2];
+        }
+        Deck deck = new Deck();
+        Card[] remainingCards = deck.getDeck();
+
+        for (int i = 1; i < numComCards + 1; i++){
+            System.out.print("Enter Community Card " + i + "(ex: 12 C, Aces are 1): ");
+            int rank = scan.nextInt();
+            char suit = scan.next().charAt(0);
+            Card newCard = new Card(rank, suit);
+            comCards[i - 1] = newCard;
+            System.out.println("Added " + newCard);
+            remainingCards = remove(remainingCards, newCard);
+        }
+
+        for (int i = 1; i < numPlayers + 1; i++){
+            for (int j = 0; j < 2; j++){
+                System.out.print("Enter player " + i + "'s Card " + j + "(ex: 12 C, Aces are 1): ");
+                int rank = scan.nextInt();
+                char suit = scan.next().charAt(0);
+                Card newCard = new Card(rank, suit);
+                players[i - 1][j] = newCard;
+                System.out.println("Added " + newCard);
+                remainingCards = remove(remainingCards, newCard);
+            }
+        }
+
+        int comLeft = 5 - numComCards;
+
+        int count = 0;
+        int[] winningCount = new int[numPlayers];
+        ArrayList<Card> test1 = new ArrayList<>();
+        ArrayList<Card> test2 = new ArrayList<>();
+        ArrayList<Integer> stringTest = new ArrayList<>();
+        if (comLeft == 2){
+            for (int i = 0; i < remainingCards.length; i ++) {
+                for (int j = i + 1; j < remainingCards.length; j++) {
+
+                    Game game = new Game(numPlayers);
+                    Card[] completionCards = {remainingCards[i], remainingCards[j]};
+
+                    if (completionCards[0].rank == 9 && completionCards[1].rank == 10){
+                        System.out.print("");
+                    }
+                    Card[] fullComCards = Game.combine(comCards, completionCards);
+                    game.players = players;
+                    game.comCards = fullComCards;
+
+                    boolean test = false;
+                    Card[][] result = game.winner(game.players, game.comCards);
+                    Card[] winningHand;
+
+                    if (result.length > 1){
+                        for (int l = 0; l < players.length; l++){
+                            for (int k = 0; k < result.length; k++) {
+                                if (compareCardArray(result[k], players[l], fullComCards)) {
+                                    winningCount[l]++;
+                                    test = true;
+                                    break;
+                                }
+                            }
+                        }
+                        continue;
+                    } else {
+                        winningHand = result[0];
+                    }
+
+                    for (int l = 0; l < players.length; l++){
+                        if (compareCardArray(winningHand, players[l], fullComCards)){
+                            winningCount[l]++;
+                            test = true;
+                            break;
+                        }
+                    }
+
+                    test1.add(remainingCards[i]);
+                    test2.add(remainingCards[j]);
+                    stringTest.add(1);
+                }
+            }
+
+            for (int element: winningCount){
+                count += element;
+            }
+            System.out.println(count);
+            for (int i = 1; i < winningCount.length + 1; i++){;
+                System.out.println("Player " + i + "'s chance of winning: "  + winningCount[i-1]/ (float) count * 100.0 + "%");
+            }
+            writeToCSV(test1, test2, stringTest);
+        } else if (comLeft == 1){
+
+        }
+
+
     }
 
     public static Card[] remove(Card[] array, Card card){

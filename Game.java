@@ -93,10 +93,12 @@ public class Game {
                     // Straight Flush has a score of 9 (the highest)
                     playerScore[i] = 9;
                 }
-            } else {
-                // Check for regular flush
-                Card[] flushHand = checkFlush(hands[i], comCards);
-                if (flushHand != null){
+            }
+
+            // Check for regular flush
+            Card[] flushHand = checkFlush(hands[i], comCards);
+            if (flushHand != null){
+                if (playerScore[i] != 9){
                     playerScore[i] = 6; // Flush has a score of 6
                     bestHands[i] = flushHand;
                 }
@@ -514,13 +516,16 @@ public class Game {
             }
             int maxRank = 0;
             ArrayList<Card[]> maxRankHand = new ArrayList<>();
-            for (int i = 0; i < handsList.size(); i++){
+            boolean cont = false;
+            int i = 0;
+            while (i < handsList.size()){
                 if (handsList.get(i)[j].rank > maxRank){
                     maxRank = handsList.get(i)[j].rank;
                     Card[] currentHand = handsList.get(i);
                     // Remove all hands in maxRankHand from handsList as they aren't the highest anymore
                     for (Card[] cards: maxRankHand){
                         handsList.remove(cards);
+                        cont = true;
                     }
                     // Create a new maxRankHand
                     maxRankHand = new ArrayList<>();
@@ -529,7 +534,13 @@ public class Game {
                     maxRankHand.add(handsList.get(i));
                 } else {
                     handsList.remove(handsList.get(i));
+                    continue;
                 }
+                if (cont){
+                    cont = false;
+                    continue;
+                }
+                i++;
             }
         }
 
